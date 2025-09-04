@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Productos{% endblock %}
+
+{% block content %}
+    <h1>Lista de Productos</h1>
+    
+    <div id="loading" style="display: none;">Cargando...</div>
+    <div id="error" style="display: none; color: red;"></div>
+    
+    <!-- Lista de todos los productos -->
+    <div id="all-products" style="display:none;">
+        <h2>Todos los Productos</h2>
+        <ul id="product-list"></ul>
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+            hideLoading();
+        }
+
+        // Cargar TODOS los productos
+        function loadAllProducts() {
+            showLoading();
+            fetch('/show_product/')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        const productList = document.getElementById('product-list');
+                        productList.innerHTML = '';
+                        document.getElementById('all-products').style.display = 'block';
+
+                        data.products.forEach(wrapper => {
+                            const product = wrapper.product; // <- importante
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <h3>${product.name}</h3>
+                                <p>ID: ${product.id}</p>
+                                <p>Precio: ${product.price}</p>
+                                <p>${product.description}</p>
+                                ${product.image ? `<img src="${product.image}" alt="${product.name}" width="100">` : ''}
+                                <hr>
+                            `;
+                            productList.appendChild(li);
+                        });
+                    } else {
+                        showError(data.error);
+                    }
+                })
+                .catch(error => {
+                    showError('Error al cargar los productos: ' + error.message);
+                });
+        }
+
+        // 🚀 Ejecutar carga automáticamente al abrir la página
+        window.addEventListener("load", loadAllProducts);
+    </script>
+{% endblock %}

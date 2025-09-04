@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear producto{% endblock %}
+
+{% block content %}
+    <h2>Agregar Producto</h2>
+    <form id="productForm">
+        <label for="title">Título:</label><br>
+        <input type="text" id="title" name="title" required><br><br>
+
+        <label for="price">Precio:</label><br>
+        <input type="number" id="price" name="price" required><br><br>
+
+        <label for="description">Descripción:</label><br>
+        <textarea id="description" name="description" required></textarea><br><br>
+
+        <label for="category">ID Categoría:</label><br>
+        <input type="number" id="category" name="category" value="1" required><br><br>
+
+        <label for="image">URL Imagen:</label><br>
+        <input type="text" id="image" name="image" value="https://placeimg.com/640/480/any" required><br><br>
+        
+        <button type="submit">Agregar Producto</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        function addProduct() {
+            const product = {
+                title: document.getElementById("title").value,
+                price: document.getElementById("price").value,
+                description: document.getElementById("description").value,
+                categoryId: document.getElementById("category").value,
+                image: document.getElementById("image").value
+            };
+            
+            fetch("/add_product/", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(product)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Producto agregado con éxito: " + data.product.title);
+                    loadAllProducts(); // refresca lista
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(err => alert("Error al enviar producto: " + err.message));
+        }
+        document.getElementById("productForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            addProduct();
+        });
+
+    </script>
+{% endblock %}
