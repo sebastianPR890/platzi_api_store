@@ -52,6 +52,7 @@
                                 <p>${product.description}</p>
                                 ${product.image ? `<img src="${product.image}" alt="${product.name}" width="100">` : ''}
                                 <hr>
+                                <a href="/product/${product.id}/">Ver detalles</a>
                             `;
                             productList.appendChild(li);
                         });

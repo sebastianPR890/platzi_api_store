@@ -7,6 +7,9 @@ import json
 def product_list(request):
     return render(request, 'product_list.html')
 
+def product_detail(request, product_id):
+    return render(request, 'product_detail.html', {'product_id': product_id})
+
 def show_product(request):
     if request.method == "GET":
         try:
@@ -57,6 +60,42 @@ def show_product(request):
         'success': False,
         'error': 'Método no permitido.'
     })
+
+def get_product_detail(request, product_id):
+    if request.method == "GET":
+        try:
+            url = f"https://api.escuelajs.co/api/v1/products/{product_id}"
+            response = requests.get(url, timeout=10)
+            
+            if response.status_code == 200:
+                product = response.json()
+                data = {
+                    'success': True,
+                    'product': {
+                        'id': product.get('id'),
+                        'name': product.get('title'),
+                        'price': product.get('price'),
+                        'description': product.get('description'),
+                        'image': product.get('images')[0] if product.get('images') else ''
+                    }
+                }
+                return JsonResponse(data)
+            elif response.status_code == 404:
+                return JsonResponse({'success': False, 'error': 'Producto no encontrado.'}, status=404)
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Error en la API: {response.status_code}. Detalles: {response.text[:200]}'
+                }, status=response.status_code)
+                
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Error en la solicitud: {str(e)}'
+            }, status=500)
+            
+    return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
+
 
 def add_product_page(request):
     return render(request, 'add_product.html')
