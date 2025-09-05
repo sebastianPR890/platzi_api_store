@@ -3,7 +3,28 @@
 {% block title %}Productos{% endblock %}
 
 {% block content %}
+    <style>
+        #search-container {
+            margin-bottom: 2rem;
+        }
+        #search-input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #product-list li {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+
     <h1>Lista de Productos</h1>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Buscar producto por nombre o descripción...">
+    </div>
     
     <div id="loading" style="display: none;">Cargando...</div>
     <div id="error" style="display: none; color: red;"></div>
@@ -30,6 +51,21 @@
             hideLoading();
         }
 
+        // Filtrar productos en el cliente
+        function filterProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const products = document.querySelectorAll('#product-list li');
+
+            products.forEach(product => {
+                const productText = product.textContent.toLowerCase();
+                if (productText.includes(searchTerm)) {
+                    product.style.display = '';
+                } else {
+                    product.style.display = 'none';
+                }
+            });
+        }
+
         // Cargar TODOS los productos
         function loadAllProducts() {
             showLoading();
@@ -47,9 +83,7 @@
                             const li = document.createElement('li');
                             li.innerHTML = `
                                 <h3>${product.name}</h3>
-                                <p>ID: ${product.id}</p>
                                 <p>Precio: ${product.price}</p>
-                                <p>${product.description}</p>
                                 ${product.image ? `<img src="${product.image}" alt="${product.name}" width="100">` : ''}
                                 <hr>
                                 <a href="/product/${product.id}/">Ver detalles</a>
@@ -67,5 +101,8 @@
 
         // 🚀 Ejecutar carga automáticamente al abrir la página
         window.addEventListener("load", loadAllProducts);
+
+        // 🎧 Escuchar eventos en la barra de búsqueda para filtrar en tiempo real
+        document.getElementById('search-input').addEventListener('input', filterProducts);
     </script>
 {% endblock %}
