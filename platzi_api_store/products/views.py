@@ -165,3 +165,27 @@ def update_product(request, product_id):
                 'error': f'Error en la solicitud: {str(e)}'
             }, status=500)
     return JsonResponse({'success': False, 'error': 'Método no permitido. Se esperaba PUT.'}, status=405)
+
+@csrf_exempt
+def delete_product(request, product_id):
+    if request.method == 'DELETE':
+        try:
+            url = f"https://api.escuelajs.co/api/v1/products/{product_id}"
+            response = requests.delete(url, timeout=10)
+
+            if response.status_code == 200 and response.json() is True:
+                return JsonResponse({'success': True, 'message': 'Producto eliminado con éxito.'})
+            else:
+                error_detail = response.text
+                try:
+                    error_detail = response.json().get('message', response.text)
+                except json.JSONDecodeError:
+                    pass
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Error de la API al eliminar: {response.status_code}. Detalles: {error_detail}'
+                }, status=response.status_code)
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'success': False, 'error': f'Error de red: {str(e)}'}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido. Se esperaba DELETE.'}, status=405)
