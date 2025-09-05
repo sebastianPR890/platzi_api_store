@@ -14,6 +14,11 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        #category-filter {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+        }
         #product-list li {
             padding: 1rem;
             border-bottom: 1px solid #eee;
@@ -24,6 +29,7 @@
 
     <div id="search-container">
         <input type="text" id="search-input" placeholder="Buscar producto por nombre o descripción...">
+        <select id="category-filter"></select>
     </div>
     
     <div id="loading" style="display: none;">Cargando...</div>
@@ -51,14 +57,42 @@
             hideLoading();
         }
 
+        function loadCategories() {
+            const categoryFilter = document.getElementById('category-filter');
+            fetch('/api/categories/')
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        categoryFilter.innerHTML = '<option value="all">Todas las categorías</option>';
+                        data.forEach(category => {
+                            if (category.name && category.id) { // Asegurarse de que la categoría es válida
+                                const option = document.createElement('option');
+                                option.value = category.id;
+                                option.textContent = category.name;
+                                categoryFilter.appendChild(option);
+                            }
+                        });
+                    } else {
+                        console.error('Error al cargar categorías:', data.error);
+                        categoryFilter.innerHTML = '<option value="all">Error al cargar</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en la solicitud de categorías:', error);
+                    categoryFilter.innerHTML = '<option value="all">Error al cargar</option>';
+                });
+        }
+
         // Filtrar productos en el cliente
         function filterProducts() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const selectedCategory = document.getElementById('category-filter').value;
             const products = document.querySelectorAll('#product-list li');
 
             products.forEach(product => {
                 const productText = product.textContent.toLowerCase();
-                if (productText.includes(searchTerm)) {
+                const productCategoryId = product.dataset.categoryId;
+                if (productText.includes(searchTerm) && (selectedCategory === 'all' || selectedCategory === productCategoryId)) {
                     product.style.display = '';
                 } else {
                     product.style.display = 'none';
@@ -81,6 +115,7 @@
                         data.products.forEach(wrapper => {
                             const product = wrapper.product; // <- importante
                             const li = document.createElement('li');
+                            li.dataset.categoryId = product.categoryId;
                             li.innerHTML = `
                                 <h3>${product.name}</h3>
                                 <p>Precio: ${product.price}</p>
@@ -100,9 +135,13 @@
         }
 
         // 🚀 Ejecutar carga automáticamente al abrir la página
-        window.addEventListener("load", loadAllProducts);
+        window.addEventListener("load", () => {
+            loadAllProducts();
+            loadCategories();
+        });
 
         // 🎧 Escuchar eventos en la barra de búsqueda para filtrar en tiempo real
         document.getElementById('search-input').addEventListener('input', filterProducts);
+        document.getElementById('category-filter').addEventListener('change', filterProducts);
     </script>
 {% endblock %}

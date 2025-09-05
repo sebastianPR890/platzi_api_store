@@ -25,14 +25,15 @@ def show_product(request):
                     {
                         'success': True,
                         'product': {
-                            'id': product['id'],
-                            'name': product['title'],
-                            'price': product['price'],
-                            'description': product['description'],
-                            'image': product['images'][0] if product['images'] else ''
+                            'id': product.get('id'),
+                            'name': product.get('title'),
+                            'price': product.get('price'),
+                            'description': product.get('description'),
+                            'image': product.get('images')[0] if product.get('images') else '',
+                            'categoryId': product.get('category', {}).get('id')
                         }
                     }
-                    for product in product_data # Limitar a los primeros 20 productos
+                    for product in product_data
                 ]
                 
                 return JsonResponse({'success': True, 'products': data}, safe=False)
@@ -98,6 +99,17 @@ def get_product_detail(request, product_id):
                 'error': f'Error en la solicitud: {str(e)}'
             }, status=500)
             
+    return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
+
+def get_categories(request):
+    if request.method == "GET":
+        try:
+            url = "https://api.escuelajs.co/api/v1/categories"
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            return JsonResponse(response.json(), safe=False)
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'success': False, 'error': f'Error al obtener categorías: {str(e)}'}, status=500)
     return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
 
 
