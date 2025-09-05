@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Producto{% endblock %}
+
+{% block content %}
+    <h2>Editar Producto</h2>
+    <div id="loading">Cargando datos del producto...</div>
+    <div id="error" style="display: none; color: red;"></div>
+
+    <form id="productUpdateForm" style="display: none;">
+        <label for="title">Título:</label><br>
+        <input type="text" id="title" name="title" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
+
+        <label for="price">Precio:</label><br>
+        <input type="number" id="price" name="price" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
+
+        <label for="description">Descripción:</label><br>
+        <textarea id="description" name="description" required style="width: 100%; padding: 8px; margin-bottom: 10px; height: 150px;"></textarea><br>
+        
+        <label for="categoryId">Categoría ID:</label><br>
+        <input type="number" id="categoryId" name="categoryId" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
+        
+        <label for="image">URL de la Imagen:</label><br>
+        <input type="text" id="image" name="image" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
+        
+        <button type="submit">Actualizar Producto</button>
+        <a href="{% url 'product_detail' product_id %}">Cancelar</a>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        const productId = {{ product_id }};
+        const form = document.getElementById('productUpdateForm');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+
+        // 1. Cargar los datos actuales del producto en el formulario
+        function loadProductData() {
+            fetch(`/api/product/${productId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    loadingDiv.style.display = 'none';
+                    if (data.success) {
+                        const product = data.product;
+                        document.getElementById('title').value = product.name;
+                        document.getElementById('price').value = product.price;
+                        document.getElementById('description').value = product.description;
+                        // Cargar los nuevos campos
+                        document.getElementById('categoryId').value = product.categoryId;
+                        document.getElementById('image').value = product.image;
+                        form.style.display = 'block';
+                    } else {
+                        showError(data.error);
+                    }
+                })
+                .catch(err => {
+                    loadingDiv.style.display = 'none';
+                    showError('Error al cargar los datos del producto: ' + err.message);
+                });
+        }
+
+        // 2. Enviar los datos actualizados a la API
+        function handleUpdate(event) {
+            event.preventDefault();
+            
+            const updatedProduct = {
+                title: document.getElementById("title").value,
+                price: document.getElementById("price").value,
+                description: document.getElementById("description").value,
+                categoryId: document.getElementById("categoryId").value,
+                image: document.getElementById("image").value,
+            };
+            
+            fetch(`/api/product/update/${productId}/`, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(updatedProduct)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Producto actualizado con éxito.");
+                    window.location.href = `/product/${productId}/`; // Redirigir a la página de detalles
+                } else {
+                    alert("Error al actualizar: " + data.error);
+                }
+            })
+            .catch(err => alert("Error al enviar la actualización: " + err.message));
+        }
+
+        window.addEventListener('load', loadProductData);
+        form.addEventListener('submit', handleUpdate);
+    </script>
+
+{% endblock %}

@@ -10,6 +10,9 @@ def product_list(request):
 def product_detail(request, product_id):
     return render(request, 'product_detail.html', {'product_id': product_id})
 
+def product_update(request, product_id):
+    return render(request, 'product_update.html', {'product_id': product_id})
+
 def show_product(request):
     if request.method == "GET":
         try:
@@ -76,7 +79,8 @@ def get_product_detail(request, product_id):
                         'name': product.get('title'),
                         'price': product.get('price'),
                         'description': product.get('description'),
-                        'image': product.get('images')[0] if product.get('images') else ''
+                        'image': product.get('images')[0] if product.get('images') else '',
+                        'categoryId': product.get('category', {}).get('id')
                     }
                 }
                 return JsonResponse(data)
@@ -101,11 +105,41 @@ def add_product_page(request):
     return render(request, 'add_product.html')
 
 @csrf_exempt
-
 def add_product(request):
     if request.method == "POST":
         try:
             url = "https://api.escuelajs.co/api/v1/products"
+            data = json.loads(request.body)
+
+            payload = {
+                'title': data.get('title'),
+                'price': int(data.get('price')),
+                'description': data.get('description'),
+                'categoryId': int(data.get('categoryId')),
+                'images': [data.get('image')]
+            }
+
+            response = requests.post(url, json=payload)
+
+            if response.status_code == 201:
+                return JsonResponse({'success': True, 'product': response.json()})
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': f'Error al crear el producto: {response.status_code}. Detalles: {response.text}'
+                }, status=response.status_code)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Error en la solicitud: {str(e)}'
+            }, status=500)
+    return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
+
+@csrf_exempt
+def update_product(request, product_id):
+    if request.method == "PUT":
+        try:
+            url = f"https://api.escuelajs.co/api/v1/products/{product_id}"
             data = json.loads(request.body)
             
             payload = {
@@ -116,18 +150,18 @@ def add_product(request):
                 'images': [data.get('image')]
             }
             
-            response = requests.post(url, json=payload)
+            response = requests.put(url, json=payload)
             
-            if response.status_code == 201:
-                return JsonResponse({'success': True, 'product': payload})
+            if response.status_code == 200:
+                return JsonResponse({'success': True, 'product': response.json()})
             else:
                 return JsonResponse({
                     'success': False,
-                    'error': f'Error al crear el producto: {response.status_code}. Detalles: {response.text}'
-                })
+                    'error': f'Error al actualizar el producto: {response.status_code}. Detalles: {response.text}'
+                }, status=response.status_code)
         except Exception as e:
             return JsonResponse({
                 'success': False,
                 'error': f'Error en la solicitud: {str(e)}'
-            })
-    return JsonResponse({'success': False, 'error': 'Error al procesar la solicitud.'}, status=405)
+            }, status=500)
+    return JsonResponse({'success': False, 'error': 'Método no permitido. Se esperaba PUT.'}, status=405)

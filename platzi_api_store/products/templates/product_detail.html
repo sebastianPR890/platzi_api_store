@@ -10,6 +10,8 @@
         <p><strong>Precio:</strong> $<span id="product-price"></span></p>
         <p><strong>Descripción:</strong></p>
         <p id="product-description"></p>
+        <br>
+        <a id="edit-product-link" href="#">Editar Producto</a>
     </div>
 
     <div id="loading" style="display: none;">Cargando...</div>
@@ -54,6 +56,8 @@
                         document.getElementById('product-description').textContent = product.description;
                         document.getElementById('product-image').src = product.image;
                         document.getElementById('product-image').alt = product.name;
+                        // Actualizar el enlace de edición
+                        document.getElementById('edit-product-link').href = `/product/update/${product.id}/`;
                     } else {
                         showError(data.error);
                     }
