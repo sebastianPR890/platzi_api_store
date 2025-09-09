@@ -3,33 +3,15 @@
 {% block title %}Productos{% endblock %}
 
 {% block content %}
-    <style>
-        #search-container {
-            margin-bottom: 2rem;
-        }
-        #search-input {
-            width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        #category-filter {
-            width: 100%;
-            padding: 0.75rem;
-            margin-top: 1rem;
-        }
-        #product-list li {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-    </style>
-
     <h1>Lista de Productos</h1>
 
-    <div id="search-container">
-        <input type="text" id="search-input" placeholder="Buscar producto por nombre o descripción...">
-        <select id="category-filter"></select>
+    <div class="card">
+        <div class="form-group">
+            <input type="text" id="search-input" placeholder="Buscar producto por nombre o descripción...">
+        </div>
+        <div class="form-group">
+            <select id="category-filter"></select>
+        </div>
     </div>
     
     <div id="loading" style="display: none;">Cargando...</div>
@@ -37,7 +19,7 @@
     
     <!-- Lista de todos los productos -->
     <div id="all-products" style="display:none;">
-        <h2>Todos los Productos</h2>
+        <h2>Resultados</h2>
         <ul id="product-list"></ul>
     </div>
 
@@ -115,12 +97,12 @@
                         data.products.forEach(wrapper => {
                             const product = wrapper.product; // <- importante
                             const li = document.createElement('li');
+                            li.className = 'card';
                             li.dataset.categoryId = product.categoryId;
                             li.innerHTML = `
                                 <h3>${product.name}</h3>
                                 <p>Precio: ${product.price}</p>
                                 ${product.image ? `<img src="${product.image}" alt="${product.name}" width="100">` : ''}
-                                <hr>
                                 <a href="/product/${product.id}/">Ver detalles</a>
                             `;
                             productList.appendChild(li);

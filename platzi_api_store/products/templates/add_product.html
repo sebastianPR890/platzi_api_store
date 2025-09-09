@@ -4,23 +4,28 @@
 
 {% block content %}
     <h2>Agregar Producto</h2>
-    <form id="productForm">
-        <label for="title">Título:</label><br>
-        <input type="text" id="title" name="title" required><br><br>
-
-        <label for="price">Precio:</label><br>
-        <input type="number" id="price" name="price" required><br><br>
-
-        <label for="description">Descripción:</label><br>
-        <textarea id="description" name="description" required></textarea><br><br>
-
-        <label for="category">ID Categoría:</label><br>
-        <input type="number" id="category" name="category" value="1" required><br><br>
-
-        <label for="image">URL Imagen:</label><br>
-        <input type="text" id="image" name="image" value="https://placeimg.com/640/480/any" required><br><br>
-        
-        <button type="submit">Agregar Producto</button>
+    <form id="productForm" class="card">
+        <div class="form-group">
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Precio:</label>
+            <input type="number" id="price" name="price" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Descripción:</label>
+            <textarea id="description" name="description" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="category">ID Categoría:</label>
+            <input type="number" id="category" name="category" value="1" required>
+        </div>
+        <div class="form-group">
+            <label for="image">URL Imagen:</label>
+            <input type="text" id="image" name="image" value="https://placeimg.com/640/480/any" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Producto</button>
     </form>
     
     <div id="result"></div>
@@ -44,7 +49,7 @@
             .then(data => {
                 if (data.success) {
                     alert("Producto agregado con éxito: " + data.product.title);
-                    loadAllProducts(); // refresca lista
+                    window.location.href = `/product/${data.product.id}/`; // Redirigir a la página de detalles del nuevo producto
                 } else {
                     alert("Error: " + data.error);
                 }

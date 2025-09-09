@@ -7,24 +7,29 @@
     <div id="loading">Cargando datos del producto...</div>
     <div id="error" style="display: none; color: red;"></div>
 
-    <form id="productUpdateForm" style="display: none;">
-        <label for="title">Título:</label><br>
-        <input type="text" id="title" name="title" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
-
-        <label for="price">Precio:</label><br>
-        <input type="number" id="price" name="price" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
-
-        <label for="description">Descripción:</label><br>
-        <textarea id="description" name="description" required style="width: 100%; padding: 8px; margin-bottom: 10px; height: 150px;"></textarea><br>
-        
-        <label for="categoryId">Categoría ID:</label><br>
-        <input type="number" id="categoryId" name="categoryId" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
-        
-        <label for="image">URL de la Imagen:</label><br>
-        <input type="text" id="image" name="image" required style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
-        
-        <button type="submit">Actualizar Producto</button>
-        <a href="{% url 'product_detail' product_id %}">Cancelar</a>
+    <form id="productUpdateForm" class="card" style="display: none;">
+        <div class="form-group">
+            <label for="title">Título:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="price">Precio:</label>
+            <input type="number" id="price" name="price" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Descripción:</label>
+            <textarea id="description" name="description" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="categoryId">Categoría ID:</label>
+            <input type="number" id="categoryId" name="categoryId" required>
+        </div>
+        <div class="form-group">
+            <label for="image">URL de la Imagen:</label>
+            <input type="text" id="image" name="image" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar Producto</button>
+        <a href="{% url 'product_detail' product_id %}" class="btn btn-secondary" style="margin-left: 10px;">Cancelar</a>
     </form>
     
     <div id="result"></div>

@@ -3,32 +3,14 @@
 {% block title %}Detalle del Producto{% endblock %}
 
 {% block content %}
-    <style>
-        .product-actions {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: 1rem;
-        }
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            text-decoration: none;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-primary { background-color: #007bff; }
-        .btn-danger { background-color: #dc3545; }
-    </style>
-
-    <div id="product-details" style="display: none;">
+    <div id="product-details" class="card" style="display: none;">
         <h1 id="product-name"></h1>
         <img id="product-image" src="" alt="Imagen del producto" width="200">
         <p><strong>ID:</strong> <span id="product-id"></span></p>
         <p><strong>Precio:</strong> $<span id="product-price"></span></p>
         <p><strong>Descripción:</strong></p>
         <p id="product-description"></p>
-        <div class="product-actions">
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
             <a id="edit-product-link" href="#" class="btn btn-primary">Editar Producto</a>
             <button id="delete-product-btn" class="btn btn-danger">Eliminar Producto</button>
         </div>
