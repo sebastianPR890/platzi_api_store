@@ -319,6 +319,11 @@
             resize: vertical;
             min-height: 120px;
         }
+        
+        .form-container {
+            max-width: 500px; /* Ancho máximo del formulario */
+            margin: 2rem auto; /* Centrado horizontal y margen vertical */
+        }
 
         /* ========== PRODUCT LIST STYLES ========== */
         #product-list {
@@ -531,8 +536,20 @@
             <a href="{% url 'product_list' %}" class="logo">Mi Tienda</a>
             <nav>
                 <ul>
-                    <li><a href="{% url 'add_product_page' %}">Crear producto</a></li>
-                    <li><a href="{% url 'product_list' %}">Lista de productos</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'product_list' %}">Productos</a></li>
+                        <li><a href="{% url 'add_product_page' %}">Agregar Producto</a></li>
+                        <li>
+                            <span style="color: white; font-weight: 600; padding: 0.5rem 1rem; display: inline-block;">
+                                Hola, {{ user.first_name|default:user.username }}
+                            </span>
+                        </li>
+                        <li><a id="logout-btn">Cerrar Sesión</a></li>
+                    {% else %}
+                        <li><a href="{% url 'product_list' %}">Productos</a></li>
+                        <li><a href="{% url 'accounts:login_page' %}">Iniciar Sesión</a></li>
+                        <li><a href="{% url 'accounts:register_page' %}">Registrarse</a></li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
@@ -549,5 +566,29 @@
             </div>
         </div>
     </footer>
+
+    {% if user.is_authenticated %}
+    <script>
+        document.getElementById('logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const token = localStorage.getItem('authToken');
+    
+            fetch("{% url 'accounts:api_logout' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
+                    'X-CSRFToken': '{{ csrf_token }}' // Buena práctica incluirlo
+                }
+            })
+            .finally(() => {
+                // Limpiamos el token y redirigimos sin importar si la API falló
+                localStorage.removeItem('authToken');
+                alert('Has cerrado sesión.');
+                window.location.href = "{% url 'accounts:login_page' %}";
+            });
+        });
+    </script>
+    {% endif %}
 </body>
 </html>

@@ -1,0 +1,84 @@
+{%extends "base.html"%}
+{% block title %}Registro{% endblock %}
+{% block content %}
+<form id="registerForm" class="card form-container">
+    <h2>Registro</h2>
+    <div id="error-message" style="display: none; color: red; margin-bottom: 1rem; background-color: #ffdddd; border-left: 6px solid #f44336; padding: 10px;"></div>
+    <div class="form-group">
+        <label for="username">Usuario:</label>
+        <input type="text" id="username" name="username" required minlength="4" maxlength="150">
+    </div>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required minlength="8">
+    </div>
+    <div class="form-group">
+        <label for="password2">Confirmar Contraseña:</label>
+        <input type="password" id="password2" name="password2" required minlength="8">
+    </div>
+    <div class="form-group">
+        <label for="first_name">Nombre:</label>
+        <input type="text" id="first_name" name="first_name" required>
+    </div>
+    <div class="form-group">
+        <label for="last_name">Apellido:</label>
+        <input type="text" id="last_name" name="last_name" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Registrarse</button>
+</form>
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita el envío tradicional del formulario
+
+        const errorMessageDiv = document.getElementById('error-message');
+        errorMessageDiv.style.display = 'none';
+        errorMessageDiv.innerHTML = '';
+
+        const formData = {
+            username: this.username.value,
+            email: this.email.value,
+            password: this.password.value,
+            password2: this.password2.value,
+            first_name: this.first_name.value,
+            last_name: this.last_name.value
+        };
+
+        fetch("{% url 'accounts:api_register' %}", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('¡Registro exitoso! Serás redirigido a la página de inicio de sesión.');
+                window.location.href = "{% url 'accounts:login_page' %}";
+            } else {
+                // Mostramos los errores de validación de la API
+                let errorHtml = '<strong>Error en el registro:</strong><ul>';
+                if (data.errors) {
+                    for (const field in data.errors) {
+                        data.errors[field].forEach(error => {
+                            errorHtml += `<li>${field}: ${error}</li>`;
+                        });
+                    }
+                } else {
+                    errorHtml += `<li>${data.message || 'Ocurrió un error desconocido.'}</li>`;
+                }
+                errorHtml += '</ul>';
+                errorMessageDiv.innerHTML = errorHtml;
+                errorMessageDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorMessageDiv.textContent = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
+            errorMessageDiv.style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}

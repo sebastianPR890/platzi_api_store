@@ -1,0 +1,55 @@
+{%extends "base.html"%}
+{% block title %}Login{% endblock %}
+{% block content %}
+<form id="loginForm" class="card form-container">
+    <h2>Login</h2>
+    <div id="error-message" style="display: none; color: red; margin-bottom: 1rem; background-color: #ffdddd; border-left: 6px solid #f44336; padding: 10px;"></div>
+    <div class="form-group">
+        <label for="username">Usuario:</label>
+        <input type="text" id="username" name="username" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+</form>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita que el formulario se envíe de la forma tradicional
+        const errorMessageDiv = document.getElementById('error-message');
+        errorMessageDiv.style.display = 'none';
+        const formData = {
+            username: this.username.value,
+            password: this.password.value,
+        };
+        fetch("{% url 'accounts:api_login' %}", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Guardamos el token para usarlo en futuras peticiones
+                localStorage.setItem('authToken', data.token);
+                alert("¡Inicio de sesión exitoso!");
+                window.location.href = "{% url 'product_list' %}"; // Redirigir a la lista de productos
+            } else {
+                // Mostramos el error que viene de la API
+                let errorText = data.message || 'Error desconocido.';
+                if (data.errors && data.errors.non_field_errors) {
+                    errorText = data.errors.non_field_errors[0];
+                }
+                errorMessageDiv.textContent = errorText;
+                errorMessageDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorMessageDiv.textContent = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
+            errorMessageDiv.style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}

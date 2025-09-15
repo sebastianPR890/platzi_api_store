@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 import requests
 import json
+from rest_framework.authtoken.models import Token
 
 def product_list(request):
     return render(request, 'product_list.html')
@@ -10,6 +12,7 @@ def product_list(request):
 def product_detail(request, product_id):
     return render(request, 'product_detail.html', {'product_id': product_id})
 
+@login_required
 def product_update(request, product_id):
     return render(request, 'product_update.html', {'product_id': product_id})
 
@@ -113,12 +116,15 @@ def get_categories(request):
     return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
 
 
+@login_required
 def add_product_page(request):
     return render(request, 'add_product.html')
 
 @csrf_exempt
 def add_product(request):
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'error': 'Autenticación requerida.'}, status=401)
         try:
             url = "https://api.escuelajs.co/api/v1/products"
             data = json.loads(request.body)
@@ -150,6 +156,8 @@ def add_product(request):
 @csrf_exempt
 def update_product(request, product_id):
     if request.method == "PUT":
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'error': 'Autenticación requerida.'}, status=401)
         try:
             url = f"https://api.escuelajs.co/api/v1/products/{product_id}"
             data = json.loads(request.body)
@@ -181,6 +189,8 @@ def update_product(request, product_id):
 @csrf_exempt
 def delete_product(request, product_id):
     if request.method == 'DELETE':
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'error': 'Autenticación requerida.'}, status=401)
         try:
             url = f"https://api.escuelajs.co/api/v1/products/{product_id}"
             response = requests.delete(url, timeout=10)

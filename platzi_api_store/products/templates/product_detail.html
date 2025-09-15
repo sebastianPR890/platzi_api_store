@@ -10,10 +10,12 @@
         <p><strong>Precio:</strong> $<span id="product-price"></span></p>
         <p><strong>Descripción:</strong></p>
         <p id="product-description"></p>
+        {% if user.is_authenticated %}
         <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-            <a id="edit-product-link" href="#" class="btn btn-primary">Editar Producto</a>
+            <a id="edit-product-link" class="btn btn-primary">Editar Producto</a>
             <button id="delete-product-btn" class="btn btn-danger">Eliminar Producto</button>
         </div>
+        {% endif %}
     </div>
 
     <div id="loading" style="display: none;">Cargando...</div>
@@ -40,7 +42,7 @@
 
         function loadProduct() {
             showLoading();
-            fetch(`/api/product/${productId}/`) // <-- URL del API corregida
+            fetch(`/api/product/${productId}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`Error HTTP: ${response.status}`);
@@ -58,7 +60,6 @@
                         document.getElementById('product-description').textContent = product.description;
                         document.getElementById('product-image').src = product.image;
                         document.getElementById('product-image').alt = product.name;
-                        // Actualizar el enlace de edición
                         document.getElementById('edit-product-link').href = `/product/update/${product.id}/`;
                     } else {
                         showError(data.error);
@@ -93,6 +94,8 @@
 
         // Ejecutar la función cuando la página cargue
         window.addEventListener('load', loadProduct);
-        document.getElementById('delete-product-btn').addEventListener('click', deleteProduct);
+        {% if user.is_authenticated %}
+            document.getElementById('delete-product-btn').addEventListener('click', deleteProduct);
+        {% endif %}
     </script>
 {% endblock %}
